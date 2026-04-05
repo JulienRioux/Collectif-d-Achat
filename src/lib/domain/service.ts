@@ -231,6 +231,18 @@ function toPriceListItem(values: string[]) {
 }
 
 function getStorePath() {
+  const configuredPath = process.env.MVP_STORE_PATH?.trim();
+
+  if (configuredPath) {
+    return path.isAbsolute(configuredPath)
+      ? configuredPath
+      : path.join(process.cwd(), configuredPath);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return path.join("/tmp", "mvp-store.json");
+  }
+
   return path.join(process.cwd(), "data", "mvp-store.json");
 }
 
