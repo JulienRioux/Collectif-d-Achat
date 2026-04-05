@@ -176,6 +176,10 @@ function parseCsvLine(line: string) {
   return values;
 }
 
+function normalizeFileName(value: string) {
+  return value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim();
+}
+
 function parseMoneyValue(raw: string) {
   const normalized = raw
     .replace(/\$/g, "")
@@ -432,6 +436,38 @@ export function importPriceListCsv(csvContent: string) {
     updatedCount,
     items: parsedItems,
   };
+}
+
+function getDefaultWeeklyCsvPath() {
+  const rootFiles = fs.readdirSync(process.cwd());
+  const target = rootFiles.find((fileName) => {
+    const normalized = normalizeFileName(fileName);
+    return (
+      normalized.startsWith("fichier semaine - liste filtr") &&
+      normalized.endsWith(".csv")
+    );
+  });
+
+  if (!target) {
+    return null;
+  }
+
+  return path.join(process.cwd(), target);
+}
+
+export function importDefaultWeeklyPriceListCsv() {
+  const csvPath = getDefaultWeeklyCsvPath();
+
+  if (!csvPath) {
+    return serializeError(
+      "Default weekly CSV file not found in project root.",
+      "default_csv_not_found",
+      404,
+    );
+  }
+
+  const csvContent = fs.readFileSync(csvPath, "utf8");
+  return importPriceListCsv(csvContent);
 }
 
 export function getBasketById(id: string) {

@@ -2,7 +2,7 @@
   "baskets": [
     {
       "id": "b18f93b6-cfa6-45a6-87d4-cc0bcbd8339f",
-      "weekLabel": "MVP - Sections de produits",
+      "weekLabel": "Semaine #1",
       "isOpen": true,
       "sections": [
         {
@@ -124,10 +124,77 @@
         }
       ],
       "createdAt": "2026-03-29T20:16:23.793Z",
-      "updatedAt": "2026-03-29T21:56:01.623Z"
+      "updatedAt": "2026-04-05T21:56:09.206Z"
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": "6382eb89-afde-45e8-bc70-50bf7856ba87",
+      "basketId": "b18f93b6-cfa6-45a6-87d4-cc0bcbd8339f",
+      "customerName": "Julien",
+      "sectionSelections": [
+        {
+          "sectionId": "e4ef52bd-66db-4e72-9279-4a8686def7d4",
+          "sectionName": "Vegetables #1",
+          "quantity": 0,
+          "unitPrice": 10
+        },
+        {
+          "sectionId": "ad0b22dc-9f96-4d67-ba3e-4a4106376ac8",
+          "sectionName": "Vegetables #2",
+          "quantity": 0,
+          "unitPrice": 10
+        },
+        {
+          "sectionId": "e5b81b1a-d8c9-4182-aa84-01f9f1bcea4f",
+          "sectionName": "Tofu",
+          "quantity": 0,
+          "unitPrice": 3
+        },
+        {
+          "sectionId": "02fd70a6-8f61-4544-b8ea-dfd2adc01758",
+          "sectionName": "Fruits #3",
+          "quantity": 0,
+          "unitPrice": 10
+        }
+      ],
+      "total": 0,
+      "createdAt": "2026-04-05T21:52:26.660Z"
+    },
+    {
+      "id": "4064c0eb-a838-464b-8ea7-d312b9b3e716",
+      "basketId": "b18f93b6-cfa6-45a6-87d4-cc0bcbd8339f",
+      "customerName": "1",
+      "sectionSelections": [
+        {
+          "sectionId": "e4ef52bd-66db-4e72-9279-4a8686def7d4",
+          "sectionName": "Vegetables #1",
+          "quantity": 1,
+          "unitPrice": 10
+        },
+        {
+          "sectionId": "ad0b22dc-9f96-4d67-ba3e-4a4106376ac8",
+          "sectionName": "Vegetables #2",
+          "quantity": 0,
+          "unitPrice": 10
+        },
+        {
+          "sectionId": "e5b81b1a-d8c9-4182-aa84-01f9f1bcea4f",
+          "sectionName": "Tofu",
+          "quantity": 0,
+          "unitPrice": 3
+        },
+        {
+          "sectionId": "02fd70a6-8f61-4544-b8ea-dfd2adc01758",
+          "sectionName": "Fruits #3",
+          "quantity": 0,
+          "unitPrice": 10
+        }
+      ],
+      "total": 10,
+      "createdAt": "2026-04-05T21:54:29.145Z"
+    }
+  ],
   "priceList": [
     {
       "id": "173663e2-fea1-4339-b6a0-175932e0e278",

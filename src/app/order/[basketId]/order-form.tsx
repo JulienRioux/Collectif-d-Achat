@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,6 @@ import { WeeklyBasket } from "@/lib/domain/types";
 
 interface Props {
   basket: WeeklyBasket;
-}
-
-interface SubmissionState {
-  status: "idle" | "submitting" | "success" | "error";
-  message?: string;
 }
 
 function formatMoney(value: number) {
@@ -34,9 +30,7 @@ export function OrderForm({ basket }: Props) {
     }
     return initial;
   });
-  const [submission, setSubmission] = useState<SubmissionState>({
-    status: "idle",
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const parsedQuantities = useMemo(() => {
     return basket.sections.map((section) => {
@@ -95,7 +89,7 @@ export function OrderForm({ basket }: Props) {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmission({ status: "submitting" });
+    setIsSubmitting(true);
 
     const payload = {
       basketId: basket.id,
@@ -115,14 +109,11 @@ export function OrderForm({ basket }: Props) {
 
       const data = await response.json();
       if (!response.ok) {
-        setSubmission({
-          status: "error",
-          message: data?.error?.message ?? "Impossible d'envoyer la commande.",
-        });
+        toast.error(data?.error?.message ?? "Impossible d'envoyer la commande.");
         return;
       }
 
-      setSubmission({ status: "success", message: "Commande enregistree." });
+      toast.success("Commande enregistree.");
       setCustomerName("");
       setSectionQuantities(() => {
         const reset: Record<string, string> = {};
@@ -132,24 +123,27 @@ export function OrderForm({ basket }: Props) {
         return reset;
       });
     } catch {
-      setSubmission({
-        status: "error",
-        message: "Erreur reseau. Veuillez reessayer.",
-      });
+      toast.error("Erreur reseau. Veuillez reessayer.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <div className="rounded-2xl border bg-white p-5 shadow-sm">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">Paiement</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Finaliser votre commande</h1>
+      <div className="rounded-2xl border bg-white p-5">
+        <p className="text-xs uppercase tracking-wide text-zinc-500">
+          Paiement
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+          Finaliser votre commande
+        </h1>
         <p className="mt-1 text-sm text-zinc-600">{basket.weekLabel}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-4">
-          <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
+          <section className="space-y-3 rounded-2xl border bg-white p-5">
             <h2 className="text-base font-medium">Vos informations</h2>
             <div className="space-y-1">
               <label
@@ -168,17 +162,20 @@ export function OrderForm({ basket }: Props) {
             </div>
           </section>
 
-          <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
+          <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-medium">Choix des sections</h2>
-              <Badge variant="outline">{selectedSectionsCount} section(s)</Badge>
+              <Badge variant="outline">
+                {selectedSectionsCount} section(s)
+              </Badge>
             </div>
 
             {basket.sections.length > 0 ? (
               <div className="space-y-3">
                 {basket.sections.map((section) => {
                   const selectedQuantity = Number(
-                    sectionQuantities[section.id] ?? String(section.minQuantity),
+                    sectionQuantities[section.id] ??
+                      String(section.minQuantity),
                   );
 
                   return (
@@ -188,7 +185,9 @@ export function OrderForm({ basket }: Props) {
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-base font-semibold text-zinc-900">{section.name}</p>
+                          <p className="text-base font-semibold text-zinc-900">
+                            {section.name}
+                          </p>
                           <p className="text-sm text-zinc-600">
                             {formatMoney(section.unitPrice)} / section
                           </p>
@@ -204,13 +203,18 @@ export function OrderForm({ basket }: Props) {
                               variant="outline"
                               size="icon-sm"
                               aria-label={`Diminuer ${section.name}`}
-                              onClick={() => updateQuantity(section.id, selectedQuantity - 1)}
+                              onClick={() =>
+                                updateQuantity(section.id, selectedQuantity - 1)
+                              }
                               disabled={selectedQuantity <= section.minQuantity}
                             >
                               -
                             </Button>
                             <Input
-                              value={sectionQuantities[section.id] ?? String(section.minQuantity)}
+                              value={
+                                sectionQuantities[section.id] ??
+                                String(section.minQuantity)
+                              }
                               onChange={(event) => {
                                 setSectionQuantities((current) => ({
                                   ...current,
@@ -228,7 +232,9 @@ export function OrderForm({ basket }: Props) {
                               variant="outline"
                               size="icon-sm"
                               aria-label={`Augmenter ${section.name}`}
-                              onClick={() => updateQuantity(section.id, selectedQuantity + 1)}
+                              onClick={() =>
+                                updateQuantity(section.id, selectedQuantity + 1)
+                              }
                               disabled={selectedQuantity >= section.maxQuantity}
                             >
                               +
@@ -238,20 +244,21 @@ export function OrderForm({ basket }: Props) {
                       </div>
 
                       {section.products.length > 0 ? (
-                        <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-3">
+                        <div className="border-t border-primary/10 py-3">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+                            <p className="text-sm font-semibold tracking-wide text-zinc-900">
                               Produits inclus
                             </p>
                             <Badge variant="secondary">
                               {section.products.length} produit(s)
                             </Badge>
                           </div>
-                          <div className="mt-3 flex flex-wrap gap-2">
+                          <div className="mt-3 grid border rounded-md overflow-hidden">
                             {section.products.map((product) => (
                               <span
                                 key={product.id}
-                                className="rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm font-medium text-zinc-800"
+                                // Hide last border using css
+                                className="border-b border-zinc-300 bg-white p-2 text-sm font-medium text-zinc-800 last:border-0"
                               >
                                 {product.name}
                                 {product.origin ? ` • ${product.origin}` : ""}
@@ -260,20 +267,24 @@ export function OrderForm({ basket }: Props) {
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm text-zinc-500">Aucun produit dans cette section.</p>
+                        <p className="text-sm text-zinc-500">
+                          Aucun produit dans cette section.
+                        </p>
                       )}
                     </article>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-sm text-zinc-600">Aucune section affichee pour ce panier.</p>
+              <p className="text-sm text-zinc-600">
+                Aucune section affichee pour ce panier.
+              </p>
             )}
           </section>
         </div>
 
         <aside className="lg:sticky lg:top-6 lg:self-start">
-          <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
+          <section className="space-y-4 rounded-2xl border bg-white p-5">
             <h2 className="text-base font-medium">Resume de commande</h2>
 
             <div className="space-y-2 border-b border-zinc-200 pb-3">
@@ -283,7 +294,10 @@ export function OrderForm({ basket }: Props) {
                 }
 
                 return (
-                  <div key={row.section.id} className="flex items-start justify-between gap-2 text-sm">
+                  <div
+                    key={row.section.id}
+                    className="flex items-start justify-between gap-2 text-sm"
+                  >
                     <p className="text-zinc-700">
                       {row.section.name} x {row.quantity}
                     </p>
@@ -295,22 +309,28 @@ export function OrderForm({ basket }: Props) {
               })}
 
               {selectedSectionsCount === 0 ? (
-                <p className="text-sm text-zinc-500">Aucune section selectionnee.</p>
+                <p className="text-sm text-zinc-500">
+                  Aucune section selectionnee.
+                </p>
               ) : null}
             </div>
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-zinc-600">Total</p>
-              <p className="text-xl font-semibold text-zinc-900">{formatMoney(estimatedTotal)}</p>
+              <p className="text-xl font-semibold text-zinc-900">
+                {formatMoney(estimatedTotal)}
+              </p>
             </div>
-            <p className="text-xs text-zinc-500">Total calcule selon les sections choisies.</p>
+            <p className="text-xs text-zinc-500">
+              Total calcule selon les sections choisies.
+            </p>
 
             <Button
               className="w-full"
-              disabled={submission.status === "submitting" || Boolean(sectionValidationError)}
+              disabled={isSubmitting || Boolean(sectionValidationError)}
               type="submit"
             >
-              {submission.status === "submitting" ? "Envoi..." : "Confirmer la commande"}
+              {isSubmitting ? "Envoi..." : "Confirmer la commande"}
             </Button>
 
             {sectionValidationError ? (
@@ -319,17 +339,6 @@ export function OrderForm({ basket }: Props) {
               </p>
             ) : null}
 
-            {submission.message ? (
-              <p
-                className={
-                  submission.status === "error"
-                    ? "rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-                    : "rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-                }
-              >
-                {submission.message}
-              </p>
-            ) : null}
           </section>
         </aside>
       </div>

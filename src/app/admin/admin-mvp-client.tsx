@@ -352,6 +352,33 @@ export function AdminMvpClient({
     }
   }
 
+  async function importDefaultWeeklyPriceList() {
+    setIsImportingPriceList(true);
+
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ useDefaultCsv: true }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(
+          data?.error?.message ?? "Impossible d'importer la liste de prix.",
+        );
+        return;
+      }
+
+      toast.success(
+        `${data.importedCount} item(s) importe(s) - ${data.createdCount} nouveau(x), ${data.updatedCount} mis a jour.`,
+      );
+      router.refresh();
+    } finally {
+      setIsImportingPriceList(false);
+    }
+  }
+
   function addSection() {
     setSections((current) => [...current, createEmptySection()]);
   }
@@ -481,8 +508,8 @@ export function AdminMvpClient({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+      <section className="rounded-2xl border bg-white p-5 space-y-4">
+        <div className="grid items-end justify-between gap-3">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Selection
@@ -549,7 +576,7 @@ export function AdminMvpClient({
         </div>
       </section>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-4">
+      <section className="rounded-2xl border bg-white p-5 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-medium">Sections du panier</h2>
         </div>
@@ -756,11 +783,19 @@ export function AdminMvpClient({
                         </SheetHeader>
 
                         <div className="mt-4 space-y-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isImportingPriceList}
+                            onClick={() => void importDefaultWeeklyPriceList()}
+                          >
+                            Utiliser Fichier Semaine - Liste filtree.csv
+                          </Button>
                           <label
                             htmlFor={`price-list-file-${section.id}`}
                             className="text-sm font-medium text-zinc-700"
                           >
-                            Import CSV
+                            Import CSV manuel
                           </label>
                           <Input
                             id={`price-list-file-${section.id}`}
@@ -1153,7 +1188,7 @@ export function AdminMvpClient({
         )}
       </section>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-4">
+      <section className="rounded-2xl border bg-white p-5 space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 className="text-lg font-medium">Commandes recues</h2>
 

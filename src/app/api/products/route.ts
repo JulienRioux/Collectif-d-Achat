@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { importPriceListCsv, listPriceListItems } from "@/lib/domain/service";
+import {
+  importDefaultWeeklyPriceListCsv,
+  importPriceListCsv,
+  listPriceListItems,
+} from "@/lib/domain/service";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +15,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const useDefaultCsv = body?.useDefaultCsv === true;
     const csvContent = typeof body?.csvContent === "string" ? body.csvContent : "";
-
-    const imported = importPriceListCsv(csvContent);
+    const imported = useDefaultCsv
+      ? importDefaultWeeklyPriceListCsv()
+      : importPriceListCsv(csvContent);
 
     if ("error" in imported) {
       return NextResponse.json(imported, { status: imported.error.status });
