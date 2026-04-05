@@ -84,7 +84,10 @@ function computeSurplusUnits(
   }
 
   const totalUnits = casesToBuy * unitsPerPack;
-  const unitsPerBasket = normalizeUnitsPerBasket(totalUnits / totalBaskets, unit);
+  const unitsPerBasket = normalizeUnitsPerBasket(
+    totalUnits / totalBaskets,
+    unit,
+  );
   const distributedUnits = unitsPerBasket * totalBaskets;
   const surplus = totalUnits - distributedUnits;
 
@@ -205,7 +208,10 @@ export function AdminMvpClient({
   const allocationTotal = useMemo(() => {
     return sections.reduce((sectionAcc, section) => {
       const sectionCost = section.products.reduce((productAcc, product) => {
-        return productAcc + toSafeMoney(product.packPrice) * toSafeInt(product.casesToBuy);
+        return (
+          productAcc +
+          toSafeMoney(product.packPrice) * toSafeInt(product.casesToBuy)
+        );
       }, 0);
 
       return sectionAcc + sectionCost;
@@ -220,7 +226,9 @@ export function AdminMvpClient({
 
     for (const section of sections) {
       const sectionAllocation = section.products.reduce((acc, product) => {
-        return acc + toSafeMoney(product.packPrice) * toSafeInt(product.casesToBuy);
+        return (
+          acc + toSafeMoney(product.packPrice) * toSafeInt(product.casesToBuy)
+        );
       }, 0);
 
       allocation.set(section.id, sectionAllocation);
@@ -230,7 +238,9 @@ export function AdminMvpClient({
   }, [sections]);
 
   async function saveConfig() {
-    const normalizedSections = sections.map((section) => normalizeSection(section));
+    const normalizedSections = sections.map((section) =>
+      normalizeSection(section),
+    );
 
     if (normalizedSections.length === 0) {
       toast.error("Ajoutez au moins une section avant de sauvegarder.");
@@ -251,7 +261,9 @@ export function AdminMvpClient({
 
     const data = await response.json();
     if (!response.ok) {
-      toast.error(data?.error?.message ?? "Impossible de sauvegarder la configuration.");
+      toast.error(
+        data?.error?.message ?? "Impossible de sauvegarder la configuration.",
+      );
       return;
     }
 
@@ -271,7 +283,9 @@ export function AdminMvpClient({
 
     const data = await response.json();
     if (!response.ok) {
-      toast.error(data?.error?.message ?? "Impossible de creer les commandes aleatoires.");
+      toast.error(
+        data?.error?.message ?? "Impossible de creer les commandes aleatoires.",
+      );
       return;
     }
 
@@ -297,7 +311,9 @@ export function AdminMvpClient({
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data?.error?.message ?? "Impossible de supprimer les commandes.");
+        toast.error(
+          data?.error?.message ?? "Impossible de supprimer les commandes.",
+        );
         return;
       }
 
@@ -321,7 +337,9 @@ export function AdminMvpClient({
 
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data?.error?.message ?? "Impossible d'importer la liste de prix.");
+        toast.error(
+          data?.error?.message ?? "Impossible d'importer la liste de prix.",
+        );
         return;
       }
 
@@ -339,7 +357,9 @@ export function AdminMvpClient({
   }
 
   function removeSection(sectionId: string) {
-    setSections((current) => current.filter((section) => section.id !== sectionId));
+    setSections((current) =>
+      current.filter((section) => section.id !== sectionId),
+    );
   }
 
   function updateSection(sectionId: string, patch: Partial<BasketSection>) {
@@ -392,7 +412,9 @@ export function AdminMvpClient({
 
         return {
           ...section,
-          products: section.products.filter((product) => product.id !== productId),
+          products: section.products.filter(
+            (product) => product.id !== productId,
+          ),
         };
       }),
     );
@@ -408,7 +430,10 @@ export function AdminMvpClient({
     });
   }
 
-  function addPriceListItemToSection(selected: PriceListItem, sectionId: string) {
+  function addPriceListItemToSection(
+    selected: PriceListItem,
+    sectionId: string,
+  ) {
     if (!selected) {
       toast.error("Item introuvable dans la liste de prix.");
       return;
@@ -459,12 +484,19 @@ export function AdminMvpClient({
       <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">Selection</p>
-            <Input value={weekLabel} onChange={(event) => setWeekLabel(event.target.value)} />
+            <p className="text-xs uppercase tracking-wide text-zinc-500">
+              Selection
+            </p>
+            <Input
+              value={weekLabel}
+              onChange={(event) => setWeekLabel(event.target.value)}
+            />
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">Statut</p>
+            <p className="text-xs uppercase tracking-wide text-zinc-500">
+              Statut
+            </p>
             <Select
               value={isOpen ? "open" : "closed"}
               onValueChange={(value) => setIsOpen(value === "open")}
@@ -492,19 +524,27 @@ export function AdminMvpClient({
         <div className="grid gap-3 border-t border-zinc-200 pt-4 sm:grid-cols-4">
           <article className="rounded-xl border border-zinc-200 bg-zinc-50/40 px-3 py-2">
             <p className="text-xs text-zinc-500">Commandes</p>
-            <p className="mt-1 text-2xl font-semibold text-zinc-900">{summary?.totalOrders ?? 0}</p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900">
+              {summary?.totalOrders ?? 0}
+            </p>
           </article>
           <article className="rounded-xl border border-zinc-200 bg-zinc-50/40 px-3 py-2">
             <p className="text-xs text-zinc-500">Sections commandees</p>
-            <p className="mt-1 text-2xl font-semibold text-zinc-900">{summary?.totalBaskets ?? 0}</p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900">
+              {summary?.totalBaskets ?? 0}
+            </p>
           </article>
           <article className="rounded-xl border border-zinc-200 bg-zinc-50/40 px-3 py-2">
             <p className="text-xs text-zinc-500">Budget recu</p>
-            <p className="mt-1 text-2xl font-semibold text-zinc-900">{formatMoney(requestedTotal)}</p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900">
+              {formatMoney(requestedTotal)}
+            </p>
           </article>
           <article className="rounded-xl border border-zinc-200 bg-zinc-50/40 px-3 py-2">
             <p className="text-xs text-zinc-500">Solde budget</p>
-            <p className="mt-1 text-2xl font-semibold text-zinc-900">{formatMoney(remainingBudget)}</p>
+            <p className="mt-1 text-2xl font-semibold text-zinc-900">
+              {formatMoney(remainingBudget)}
+            </p>
           </article>
         </div>
       </section>
@@ -520,540 +560,593 @@ export function AdminMvpClient({
           <div className="space-y-4">
             {sections.map((section) => {
               const sectionDemand = sectionDemandById.get(section.id) ?? 0;
-              const sectionRequestedBudget = sectionBudgetById.get(section.id) ?? 0;
-              const sectionAllocatedBudget = allocatedBudgetBySectionId.get(section.id) ?? 0;
-              const sectionBalance = sectionRequestedBudget - sectionAllocatedBudget;
+              const sectionRequestedBudget =
+                sectionBudgetById.get(section.id) ?? 0;
+              const sectionAllocatedBudget =
+                allocatedBudgetBySectionId.get(section.id) ?? 0;
+              const sectionBalance =
+                sectionRequestedBudget - sectionAllocatedBudget;
 
               return (
-              <article key={section.id} className="rounded-xl border border-zinc-200 p-3 space-y-3">
-                <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50/40 p-3 sm:grid-cols-4">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Nom section
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">{section.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Prix section
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {formatMoney(section.unitPrice)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Min
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {section.minQuantity}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Max
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {section.maxQuantity}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Sections commandees
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {sectionDemand}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Budget recu section
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {formatMoney(sectionRequestedBudget)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Budget alloue section
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-zinc-900">
-                      {formatMoney(sectionAllocatedBudget)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Solde section
-                    </p>
-                    <div className="mt-1">
-                      <Badge variant={sectionBalance < 0 ? "danger" : "success"}>
-                        {formatMoney(sectionBalance)}
-                      </Badge>
+                <article
+                  key={section.id}
+                  className="rounded-xl border border-zinc-200 p-3 space-y-3"
+                >
+                  <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50/40 p-3 sm:grid-cols-4">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Nom section
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {section.name}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Prix section
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {formatMoney(section.unitPrice)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Min
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {section.minQuantity}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Max
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {section.maxQuantity}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Sections commandees
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {sectionDemand}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Budget recu section
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {formatMoney(sectionRequestedBudget)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Budget alloue section
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-900">
+                        {formatMoney(sectionAllocatedBudget)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        Solde section
+                      </p>
+                      <div className="mt-1">
+                        <Badge
+                          variant={sectionBalance < 0 ? "danger" : "success"}
+                        >
+                          {formatMoney(sectionBalance)}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <Sheet>
-                    <SheetTrigger render={<Button variant="outline" />}>
-                      Modifier section
-                    </SheetTrigger>
-                    <SheetContent className="overflow-y-auto">
-                      <SheetHeader>
-                        <SheetTitle>Modifier section</SheetTitle>
-                        <SheetDescription>
-                          Mettez a jour le nom, le prix et les bornes min/max.
-                        </SheetDescription>
-                      </SheetHeader>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Sheet>
+                      <SheetTrigger render={<Button variant="outline" />}>
+                        Modifier section
+                      </SheetTrigger>
+                      <SheetContent className="overflow-y-auto">
+                        <SheetHeader>
+                          <SheetTitle>Modifier section</SheetTitle>
+                          <SheetDescription>
+                            Mettez a jour le nom, le prix et les bornes min/max.
+                          </SheetDescription>
+                        </SheetHeader>
 
-                      <div className="mt-4 grid gap-3">
-                        <div className="space-y-1">
+                        <div className="mt-4 grid gap-3">
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`section-name-${section.id}`}
+                              className="text-sm font-medium text-zinc-700"
+                            >
+                              Nom section
+                            </label>
+                            <Input
+                              id={`section-name-${section.id}`}
+                              value={section.name}
+                              onChange={(event) =>
+                                updateSection(section.id, {
+                                  name: event.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`section-price-${section.id}`}
+                              className="text-sm font-medium text-zinc-700"
+                            >
+                              Prix section
+                            </label>
+                            <Input
+                              id={`section-price-${section.id}`}
+                              value={String(section.unitPrice)}
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              onChange={(event) =>
+                                updateSection(section.id, {
+                                  unitPrice: Number(event.target.value),
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="space-y-1">
+                              <label
+                                htmlFor={`section-min-${section.id}`}
+                                className="text-sm font-medium text-zinc-700"
+                              >
+                                Min
+                              </label>
+                              <Input
+                                id={`section-min-${section.id}`}
+                                value={String(section.minQuantity)}
+                                type="number"
+                                min={0}
+                                step={1}
+                                onChange={(event) =>
+                                  updateSection(section.id, {
+                                    minQuantity: Number(event.target.value),
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label
+                                htmlFor={`section-max-${section.id}`}
+                                className="text-sm font-medium text-zinc-700"
+                              >
+                                Max
+                              </label>
+                              <Input
+                                id={`section-max-${section.id}`}
+                                value={String(section.maxQuantity)}
+                                type="number"
+                                min={0}
+                                step={1}
+                                onChange={(event) =>
+                                  updateSection(section.id, {
+                                    maxQuantity: Number(event.target.value),
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                      <SheetTrigger render={<Button variant="outline" />}>
+                        Ajouter un produit
+                      </SheetTrigger>
+                      <SheetContent className="overflow-y-auto">
+                        <SheetHeader>
+                          <SheetTitle>Liste de prix fournisseur</SheetTitle>
+                          <SheetDescription>
+                            Ajoutez un produit a la section {section.name}.
+                          </SheetDescription>
+                        </SheetHeader>
+
+                        <div className="mt-4 space-y-1">
                           <label
-                            htmlFor={`section-name-${section.id}`}
+                            htmlFor={`price-list-file-${section.id}`}
                             className="text-sm font-medium text-zinc-700"
                           >
-                            Nom section
+                            Import CSV
                           </label>
                           <Input
-                            id={`section-name-${section.id}`}
-                            value={section.name}
-                            onChange={(event) =>
-                              updateSection(section.id, { name: event.target.value })
-                            }
+                            id={`price-list-file-${section.id}`}
+                            type="file"
+                            accept=".csv,text/csv"
+                            disabled={isImportingPriceList}
+                            onChange={(event) => {
+                              const file = event.target.files?.[0];
+                              if (!file) {
+                                return;
+                              }
+
+                              void importPriceList(file);
+                              event.target.value = "";
+                            }}
                           />
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="mt-4 space-y-2">
                           <label
-                            htmlFor={`section-price-${section.id}`}
+                            htmlFor={`price-list-search-${section.id}`}
                             className="text-sm font-medium text-zinc-700"
                           >
-                            Prix section
+                            Rechercher
                           </label>
                           <Input
-                            id={`section-price-${section.id}`}
-                            value={String(section.unitPrice)}
+                            id={`price-list-search-${section.id}`}
+                            value={priceListSearch}
+                            onChange={(event) =>
+                              setPriceListSearch(event.target.value)
+                            }
+                            placeholder="Nom, index, origine, emballage..."
+                          />
+                        </div>
+
+                        <DataTable
+                          className="mt-4 overflow-auto rounded-xl border"
+                          data={filteredPriceListItems}
+                          rowKey={(item) => item.id}
+                          headClassName="sticky top-0 bg-zinc-50 text-zinc-600"
+                          onRowClick={(item) =>
+                            addPriceListItemToSection(item, section.id)
+                          }
+                          emptyState="Aucun item ne correspond a la recherche."
+                          columns={[
+                            {
+                              id: "index",
+                              header: "Index",
+                              cell: (item) => item.index,
+                            },
+                            {
+                              id: "item",
+                              header: "Item",
+                              cell: (item) => item.name,
+                            },
+                            {
+                              id: "origin",
+                              header: "Origine",
+                              cell: (item) => item.origin || "-",
+                            },
+                            {
+                              id: "price",
+                              header: "Prix",
+                              cell: (item) => formatMoney(item.packPrice),
+                            },
+                          ]}
+                        />
+                      </SheetContent>
+                    </Sheet>
+
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      onClick={() => removeSection(section.id)}
+                    >
+                      Supprimer section
+                    </Button>
+                  </div>
+
+                  <DataTable
+                    className="rounded-xl border"
+                    headClassName="bg-zinc-50 text-zinc-600"
+                    data={section.products}
+                    rowKey={(product) => product.id}
+                    emptyState="Aucun produit dans cette section."
+                    columns={[
+                      {
+                        id: "name",
+                        header: "Produit",
+                        cellClassName: "font-medium text-zinc-900",
+                        cell: (product) => product.name,
+                      },
+                      {
+                        id: "origin",
+                        header: "Origine",
+                        cell: (product) => product.origin,
+                      },
+                      {
+                        id: "packPrice",
+                        header: "Prix caisse",
+                        cell: (product) => `${formatMoney(product.packPrice)}`,
+                      },
+                      {
+                        id: "unitsPerPack",
+                        header: "Unites/caisse",
+                        cell: (product) => String(product.unitsPerPack),
+                      },
+                      {
+                        id: "unitCost",
+                        header: "Cout unitaire",
+                        cell: (product) => {
+                          const unitsPerPack = Math.max(
+                            1,
+                            toSafeInt(product.unitsPerPack),
+                          );
+                          const unitCost = product.packPrice / unitsPerPack;
+                          const unitLabel = product.primaryPackaging || "UN";
+
+                          return `${formatMoney(unitCost)} / ${unitLabel}`;
+                        },
+                      },
+                      {
+                        id: "casesToBuy",
+                        header: "Caisses a acheter",
+                        cell: (product) => (
+                          <Input
+                            value={String(product.casesToBuy)}
                             type="number"
                             min={0}
-                            step={0.01}
-                            onChange={(event) =>
-                              updateSection(section.id, {
-                                unitPrice: Number(event.target.value),
-                              })
-                            }
+                            step={1}
+                            onChange={(event) => {
+                              const key = draftKey(section.id, product.id);
+                              updateProduct(section.id, product.id, {
+                                casesToBuy: Number(event.target.value),
+                              });
+
+                              setUnitsPerBasketDrafts((current) => {
+                                if (!(key in current)) {
+                                  return current;
+                                }
+
+                                const next = { ...current };
+                                delete next[key];
+                                return next;
+                              });
+                            }}
                           />
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`section-min-${section.id}`}
-                              className="text-sm font-medium text-zinc-700"
-                            >
-                              Min
-                            </label>
-                            <Input
-                              id={`section-min-${section.id}`}
-                              value={String(section.minQuantity)}
-                              type="number"
-                              min={0}
-                              step={1}
-                              onChange={(event) =>
-                                updateSection(section.id, {
-                                  minQuantity: Number(event.target.value),
-                                })
-                              }
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`section-max-${section.id}`}
-                              className="text-sm font-medium text-zinc-700"
-                            >
-                              Max
-                            </label>
-                            <Input
-                              id={`section-max-${section.id}`}
-                              value={String(section.maxQuantity)}
-                              type="number"
-                              min={0}
-                              step={1}
-                              onChange={(event) =>
-                                updateSection(section.id, {
-                                  maxQuantity: Number(event.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-
-                  <Sheet>
-                    <SheetTrigger render={<Button variant="outline" />}>
-                      Ajouter un produit
-                    </SheetTrigger>
-                    <SheetContent className="overflow-y-auto">
-                      <SheetHeader>
-                        <SheetTitle>Liste de prix fournisseur</SheetTitle>
-                        <SheetDescription>
-                          Ajoutez un produit a la section {section.name}.
-                        </SheetDescription>
-                      </SheetHeader>
-
-                      <div className="mt-4 space-y-1">
-                        <label
-                          htmlFor={`price-list-file-${section.id}`}
-                          className="text-sm font-medium text-zinc-700"
-                        >
-                          Import CSV
-                        </label>
-                        <Input
-                          id={`price-list-file-${section.id}`}
-                          type="file"
-                          accept=".csv,text/csv"
-                          disabled={isImportingPriceList}
-                          onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (!file) {
-                              return;
-                            }
-
-                            void importPriceList(file);
-                            event.target.value = "";
-                          }}
-                        />
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <label
-                          htmlFor={`price-list-search-${section.id}`}
-                          className="text-sm font-medium text-zinc-700"
-                        >
-                          Rechercher
-                        </label>
-                        <Input
-                          id={`price-list-search-${section.id}`}
-                          value={priceListSearch}
-                          onChange={(event) => setPriceListSearch(event.target.value)}
-                          placeholder="Nom, index, origine, emballage..."
-                        />
-                      </div>
-
-                      <DataTable
-                        className="mt-4 overflow-auto rounded-xl border"
-                        data={filteredPriceListItems}
-                        rowKey={(item) => item.id}
-                        headClassName="sticky top-0 bg-zinc-50 text-zinc-600"
-                        onRowClick={(item) => addPriceListItemToSection(item, section.id)}
-                        emptyState="Aucun item ne correspond a la recherche."
-                        columns={[
-                          {
-                            id: "index",
-                            header: "Index",
-                            cell: (item) => item.index,
-                          },
-                          {
-                            id: "item",
-                            header: "Item",
-                            cell: (item) => item.name,
-                          },
-                          {
-                            id: "origin",
-                            header: "Origine",
-                            cell: (item) => item.origin || "-",
-                          },
-                          {
-                            id: "price",
-                            header: "Prix",
-                            cell: (item) => formatMoney(item.packPrice),
-                          },
-                        ]}
-                      />
-                    </SheetContent>
-                  </Sheet>
-
-                  <Button
-                    variant="destructive"
-                    type="button"
-                    onClick={() => removeSection(section.id)}
-                  >
-                    Supprimer section
-                  </Button>
-                </div>
-
-                <DataTable
-                  className="rounded-xl border"
-                  headClassName="bg-zinc-50 text-zinc-600"
-                  data={section.products}
-                  rowKey={(product) => product.id}
-                  emptyState="Aucun produit dans cette section."
-                  columns={[
-                    {
-                      id: "name",
-                      header: "Produit",
-                      cellClassName: "font-medium text-zinc-900",
-                      cell: (product) => product.name,
-                    },
-                    {
-                      id: "origin",
-                      header: "Origine",
-                      cell: (product) => product.origin,
-                    },
-                    {
-                      id: "packPrice",
-                      header: "Prix caisse",
-                      cell: (product) => `${formatMoney(product.packPrice)}`,
-                    },
-                    {
-                      id: "unitsPerPack",
-                      header: "Unites/caisse",
-                      cell: (product) => String(product.unitsPerPack),
-                    },
-                    {
-                      id: "unitCost",
-                      header: "Cout unitaire",
-                      cell: (product) => {
-                        const unitsPerPack = Math.max(1, toSafeInt(product.unitsPerPack));
-                        const unitCost = product.packPrice / unitsPerPack;
-                        const unitLabel = product.primaryPackaging || "UN";
-
-                        return `${formatMoney(unitCost)} / ${unitLabel}`;
+                        ),
                       },
-                    },
-                    {
-                      id: "casesToBuy",
-                      header: "Caisses a acheter",
-                      cell: (product) => (
-                        <Input
-                          value={String(product.casesToBuy)}
-                          type="number"
-                          min={0}
-                          step={1}
-                          onChange={(event) => {
-                            const key = draftKey(section.id, product.id);
-                            updateProduct(section.id, product.id, {
-                              casesToBuy: Number(event.target.value),
-                            });
-
-                            setUnitsPerBasketDrafts((current) => {
-                              if (!(key in current)) {
-                                return current;
-                              }
-
-                              const next = { ...current };
-                              delete next[key];
-                              return next;
-                            });
-                          }}
-                        />
-                      ),
-                    },
-                    {
-                      id: "totalCost",
-                      header: "Cout total",
-                      cell: (product) => {
-                        const casesToBuy = toSafeInt(product.casesToBuy);
-                        return formatMoney(product.packPrice * casesToBuy);
+                      {
+                        id: "totalCost",
+                        header: "Cout total",
+                        cell: (product) => {
+                          const casesToBuy = toSafeInt(product.casesToBuy);
+                          return formatMoney(product.packPrice * casesToBuy);
+                        },
                       },
-                    },
-                    {
-                      id: "unitsPerBasket",
-                      header: "Unites/panier",
-                      cell: (product) => {
-                        const sectionDemand = sectionDemandById.get(section.id) ?? 0;
-                        const allowsDecimalUnits = isLbsUnit(product.primaryPackaging);
-                        const unitsPerPack = Math.max(1, toSafeInt(product.unitsPerPack));
-                        const casesToBuy = toSafeInt(product.casesToBuy);
-                        const unitsPerBasket =
-                          sectionDemand > 0
-                            ? normalizeUnitsPerBasket(
-                                (casesToBuy * unitsPerPack) / sectionDemand,
-                                product.primaryPackaging,
-                              )
-                            : 0;
-                        const key = draftKey(section.id, product.id);
-                        const draftValue = unitsPerBasketDrafts[key];
-                        const displayedValue = draftValue ?? String(unitsPerBasket);
-
-                        return (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              value={displayedValue}
-                              onChange={(event) => {
-                                const rawValue = event.target.value;
-
-                                if (!allowsDecimalUnits && rawValue.includes(".")) {
-                                  return;
-                                }
-
-                                if (allowsDecimalUnits && !/^\d*(\.\d{0,1})?$/.test(rawValue)) {
-                                  return;
-                                }
-
-                                setUnitsPerBasketDrafts((current) => ({
-                                  ...current,
-                                  [key]: rawValue,
-                                }));
-
-                                if (rawValue === "") {
-                                  return;
-                                }
-
-                                const parsedValue = Number(rawValue);
-                                if (!Number.isFinite(parsedValue)) {
-                                  return;
-                                }
-
-                                const targetUnitsPerBasket = normalizeUnitsPerBasket(
-                                  parsedValue,
+                      {
+                        id: "unitsPerBasket",
+                        header: "Unites/panier",
+                        cell: (product) => {
+                          const sectionDemand =
+                            sectionDemandById.get(section.id) ?? 0;
+                          const allowsDecimalUnits = isLbsUnit(
+                            product.primaryPackaging,
+                          );
+                          const unitsPerPack = Math.max(
+                            1,
+                            toSafeInt(product.unitsPerPack),
+                          );
+                          const casesToBuy = toSafeInt(product.casesToBuy);
+                          const unitsPerBasket =
+                            sectionDemand > 0
+                              ? normalizeUnitsPerBasket(
+                                  (casesToBuy * unitsPerPack) / sectionDemand,
                                   product.primaryPackaging,
-                                );
+                                )
+                              : 0;
+                          const key = draftKey(section.id, product.id);
+                          const draftValue = unitsPerBasketDrafts[key];
+                          const displayedValue =
+                            draftValue ?? String(unitsPerBasket);
 
-                                if (sectionDemand <= 0) {
-                                  toast.error(
-                                    "Impossible d'ajuster sans demandes pour cette section.",
-                                  );
-                                  return;
-                                }
+                          return (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={displayedValue}
+                                onChange={(event) => {
+                                  const rawValue = event.target.value;
 
-                                const nextCasesToBuy = Math.ceil(
-                                  (targetUnitsPerBasket * sectionDemand) / unitsPerPack,
-                                );
-
-                                updateProduct(section.id, product.id, {
-                                  casesToBuy: nextCasesToBuy,
-                                });
-                              }}
-                              type="number"
-                              min={0}
-                              step={allowsDecimalUnits ? 0.1 : 1}
-                              disabled={sectionDemand <= 0}
-                              className="w-20"
-                            />
-                            <span>{product.primaryPackaging || "UN"}</span>
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      id: "surplus",
-                      header: "Surplus",
-                      cell: (product) => {
-                        const sectionDemand = sectionDemandById.get(section.id) ?? 0;
-                        const unitsPerPack = Math.max(1, toSafeInt(product.unitsPerPack));
-                        const casesToBuy = toSafeInt(product.casesToBuy);
-                        const totalUnits = casesToBuy * unitsPerPack;
-                        const key = draftKey(section.id, product.id);
-                        const draftValue = unitsPerBasketDrafts[key];
-
-                        if (sectionDemand <= 0 || draftValue === undefined || draftValue === "") {
-                          const surplusUnits = computeSurplusUnits(
-                            casesToBuy,
-                            unitsPerPack,
-                            sectionDemand,
-                            product.primaryPackaging,
-                          );
-
-                          return `${surplusUnits} ${product.primaryPackaging || "UN"}`;
-                        }
-
-                        const parsedDraft = Number(draftValue);
-                        if (!Number.isFinite(parsedDraft)) {
-                          const fallbackSurplus = computeSurplusUnits(
-                            casesToBuy,
-                            unitsPerPack,
-                            sectionDemand,
-                            product.primaryPackaging,
-                          );
-
-                          return `${fallbackSurplus} ${product.primaryPackaging || "UN"}`;
-                        }
-
-                        const targetUnitsPerBasket = normalizeUnitsPerBasket(
-                          parsedDraft,
-                          product.primaryPackaging,
-                        );
-                        const distributedUnits = targetUnitsPerBasket * sectionDemand;
-                        const rawSurplus = Math.max(0, totalUnits - distributedUnits);
-                        const displayedSurplus = isLbsUnit(product.primaryPackaging)
-                          ? Math.round(rawSurplus * 10) / 10
-                          : Math.floor(rawSurplus);
-
-                        return `${displayedSurplus} ${product.primaryPackaging || "UN"}`;
-                      },
-                    },
-                    {
-                      id: "actions",
-                      header: "Actions",
-                      cell: (product) => (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label="Actions produit"
-                              />
-                            }
-                          >
-                            <MoreHorizontal />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const sectionDemand = sectionDemandById.get(section.id) ?? 0;
-                                if (sectionDemand <= 0) {
-                                  toast.error(
-                                    "Impossible de calculer sans demandes pour cette section.",
-                                  );
-                                  return;
-                                }
-
-                                const unitsPerPack = Math.max(
-                                  1,
-                                  toSafeInt(product.unitsPerPack),
-                                );
-                                const minCasesToBuy = Math.ceil(sectionDemand / unitsPerPack);
-
-                                updateProduct(section.id, product.id, {
-                                  casesToBuy: minCasesToBuy,
-                                });
-
-                                const key = draftKey(section.id, product.id);
-                                setUnitsPerBasketDrafts((current) => {
-                                  if (!(key in current)) {
-                                    return current;
+                                  if (
+                                    !allowsDecimalUnits &&
+                                    rawValue.includes(".")
+                                  ) {
+                                    return;
                                   }
 
-                                  const next = { ...current };
-                                  delete next[key];
-                                  return next;
-                                });
+                                  if (
+                                    allowsDecimalUnits &&
+                                    !/^\d*(\.\d{0,1})?$/.test(rawValue)
+                                  ) {
+                                    return;
+                                  }
 
-                                toast.success(
-                                  `Caisses ajustees a ${minCasesToBuy} pour viser 1 unite par panier.`,
-                                );
-                              }}
+                                  setUnitsPerBasketDrafts((current) => ({
+                                    ...current,
+                                    [key]: rawValue,
+                                  }));
+
+                                  if (rawValue === "") {
+                                    return;
+                                  }
+
+                                  const parsedValue = Number(rawValue);
+                                  if (!Number.isFinite(parsedValue)) {
+                                    return;
+                                  }
+
+                                  const targetUnitsPerBasket =
+                                    normalizeUnitsPerBasket(
+                                      parsedValue,
+                                      product.primaryPackaging,
+                                    );
+
+                                  if (sectionDemand <= 0) {
+                                    toast.error(
+                                      "Impossible d'ajuster sans demandes pour cette section.",
+                                    );
+                                    return;
+                                  }
+
+                                  const nextCasesToBuy = Math.ceil(
+                                    (targetUnitsPerBasket * sectionDemand) /
+                                      unitsPerPack,
+                                  );
+
+                                  updateProduct(section.id, product.id, {
+                                    casesToBuy: nextCasesToBuy,
+                                  });
+                                }}
+                                type="number"
+                                min={0}
+                                step={allowsDecimalUnits ? 0.1 : 1}
+                                disabled={sectionDemand <= 0}
+                                className="w-20"
+                              />
+                              <span>{product.primaryPackaging || "UN"}</span>
+                            </div>
+                          );
+                        },
+                      },
+                      {
+                        id: "surplus",
+                        header: "Surplus",
+                        cell: (product) => {
+                          const sectionDemand =
+                            sectionDemandById.get(section.id) ?? 0;
+                          const unitsPerPack = Math.max(
+                            1,
+                            toSafeInt(product.unitsPerPack),
+                          );
+                          const casesToBuy = toSafeInt(product.casesToBuy);
+                          const totalUnits = casesToBuy * unitsPerPack;
+                          const key = draftKey(section.id, product.id);
+                          const draftValue = unitsPerBasketDrafts[key];
+
+                          if (
+                            sectionDemand <= 0 ||
+                            draftValue === undefined ||
+                            draftValue === ""
+                          ) {
+                            const surplusUnits = computeSurplusUnits(
+                              casesToBuy,
+                              unitsPerPack,
+                              sectionDemand,
+                              product.primaryPackaging,
+                            );
+
+                            return `${surplusUnits} ${product.primaryPackaging || "UN"}`;
+                          }
+
+                          const parsedDraft = Number(draftValue);
+                          if (!Number.isFinite(parsedDraft)) {
+                            const fallbackSurplus = computeSurplusUnits(
+                              casesToBuy,
+                              unitsPerPack,
+                              sectionDemand,
+                              product.primaryPackaging,
+                            );
+
+                            return `${fallbackSurplus} ${product.primaryPackaging || "UN"}`;
+                          }
+
+                          const targetUnitsPerBasket = normalizeUnitsPerBasket(
+                            parsedDraft,
+                            product.primaryPackaging,
+                          );
+                          const distributedUnits =
+                            targetUnitsPerBasket * sectionDemand;
+                          const rawSurplus = Math.max(
+                            0,
+                            totalUnits - distributedUnits,
+                          );
+                          const displayedSurplus = isLbsUnit(
+                            product.primaryPackaging,
+                          )
+                            ? Math.round(rawSurplus * 10) / 10
+                            : Math.floor(rawSurplus);
+
+                          return `${displayedSurplus} ${product.primaryPackaging || "UN"}`;
+                        },
+                      },
+                      {
+                        id: "actions",
+                        header: "Actions",
+                        cell: (product) => (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label="Actions produit"
+                                />
+                              }
                             >
-                              Min 1/panier
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
-                              onClick={() => removeProduct(section.id, product.id)}
-                            >
-                              Retirer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ),
-                    },
-                  ]}
-                />
-              </article>
+                              <MoreHorizontal />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  const sectionDemand =
+                                    sectionDemandById.get(section.id) ?? 0;
+                                  if (sectionDemand <= 0) {
+                                    toast.error(
+                                      "Impossible de calculer sans demandes pour cette section.",
+                                    );
+                                    return;
+                                  }
+
+                                  const unitsPerPack = Math.max(
+                                    1,
+                                    toSafeInt(product.unitsPerPack),
+                                  );
+                                  const minCasesToBuy = Math.ceil(
+                                    sectionDemand / unitsPerPack,
+                                  );
+
+                                  updateProduct(section.id, product.id, {
+                                    casesToBuy: minCasesToBuy,
+                                  });
+
+                                  const key = draftKey(section.id, product.id);
+                                  setUnitsPerBasketDrafts((current) => {
+                                    if (!(key in current)) {
+                                      return current;
+                                    }
+
+                                    const next = { ...current };
+                                    delete next[key];
+                                    return next;
+                                  });
+
+                                  toast.success(
+                                    `Caisses ajustees a ${minCasesToBuy} pour viser 1 unite par panier.`,
+                                  );
+                                }}
+                              >
+                                Min 1/panier
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
+                                onClick={() =>
+                                  removeProduct(section.id, product.id)
+                                }
+                              >
+                                Retirer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ),
+                      },
+                    ]}
+                  />
+                </article>
               );
             })}
           </div>
@@ -1066,7 +1159,10 @@ export function AdminMvpClient({
 
           <div className="flex flex-wrap items-end gap-2">
             <div className="w-36 space-y-1">
-              <label htmlFor="random-count" className="text-sm font-medium text-zinc-700">
+              <label
+                htmlFor="random-count"
+                className="text-sm font-medium text-zinc-700"
+              >
                 Quantite aleatoire
               </label>
               <Input
@@ -1108,7 +1204,10 @@ export function AdminMvpClient({
               header: "Sections",
               cell: (order) =>
                 order.sectionSelections
-                  .map((selection) => `${selection.sectionName}: ${selection.quantity}`)
+                  .map(
+                    (selection) =>
+                      `${selection.sectionName}: ${selection.quantity}`,
+                  )
                   .join(" | "),
             },
             {
