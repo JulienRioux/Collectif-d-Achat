@@ -57,7 +57,7 @@ function createSeedState(): DomainState {
           {
             id: createId(),
             name: "Vegetables #1",
-            unitPrice: 5,
+            unitPrice: 10,
             minQuantity: 0,
             maxQuantity: 2,
             products: [
@@ -84,7 +84,7 @@ function createSeedState(): DomainState {
           {
             id: createId(),
             name: "Vegetables #2",
-            unitPrice: 4,
+            unitPrice: 10,
             minQuantity: 0,
             maxQuantity: 2,
             products: [
@@ -111,7 +111,7 @@ function createSeedState(): DomainState {
           {
             id: createId(),
             name: "Fruits #1",
-            unitPrice: 4,
+            unitPrice: 8,
             minQuantity: 0,
             maxQuantity: 2,
             products: [
@@ -272,7 +272,10 @@ function normalizeProduct(product: BasketProduct): BasketProduct {
 
 function normalizeSection(section: BasketSection): BasketSection {
   const minQuantity = Math.max(0, Math.floor(Number(section.minQuantity) || 0));
-  const maxQuantity = Math.max(minQuantity, Math.floor(Number(section.maxQuantity) || 0));
+  const maxQuantity = Math.max(
+    minQuantity,
+    Math.floor(Number(section.maxQuantity) || 0),
+  );
 
   return {
     ...section,
@@ -293,7 +296,9 @@ function readState(): DomainState {
     baskets?: Array<WeeklyBasket & { products?: BasketProduct[] }>;
   };
 
-  const parsedPriceList = Array.isArray(parsed.priceList) ? parsed.priceList : [];
+  const parsedPriceList = Array.isArray(parsed.priceList)
+    ? parsed.priceList
+    : [];
 
   if (!Array.isArray(parsed.baskets) || !Array.isArray(parsed.orders)) {
     const resetState = {
@@ -304,12 +309,12 @@ function readState(): DomainState {
     return resetState;
   }
 
-  const hasLegacyBaskets = parsed.baskets.some(
-    (basket) => {
-      const candidate = basket as { products?: unknown; sections?: unknown };
-      return Array.isArray(candidate.products) && !Array.isArray(candidate.sections);
-    }
-  );
+  const hasLegacyBaskets = parsed.baskets.some((basket) => {
+    const candidate = basket as { products?: unknown; sections?: unknown };
+    return (
+      Array.isArray(candidate.products) && !Array.isArray(candidate.sections)
+    );
+  });
 
   if (hasLegacyBaskets) {
     const resetState = {
@@ -328,7 +333,9 @@ function readState(): DomainState {
   }));
 
   const orders = parsed.orders
-    .filter((order): order is Order => Boolean(order && typeof order === "object"))
+    .filter((order): order is Order =>
+      Boolean(order && typeof order === "object"),
+    )
     .map((order) => ({
       ...order,
       sectionSelections: Array.isArray(order.sectionSelections)
@@ -355,7 +362,9 @@ function writeState(nextState: DomainState) {
 
 export function listBaskets() {
   const state = readState();
-  return [...state.baskets].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return [...state.baskets].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
 }
 
 export function listPriceListItems() {
@@ -384,12 +393,16 @@ export function importPriceListCsv(csvContent: string) {
   }
 
   if (parsedItems.length === 0) {
-    return serializeError("No valid items were found in CSV.", "invalid_csv", 422);
+    return serializeError(
+      "No valid items were found in CSV.",
+      "invalid_csv",
+      422,
+    );
   }
 
   const state = readState();
   const existingByIndex = new Map(
-    state.priceList.map((item) => [item.index.trim().toUpperCase(), item])
+    state.priceList.map((item) => [item.index.trim().toUpperCase(), item]),
   );
 
   let createdCount = 0;
@@ -447,7 +460,9 @@ export function updateBasket(basketId: string, patch: UpdateBasketInput) {
   }
 
   if (patch.sections !== undefined) {
-    basket.sections = patch.sections.map((section) => normalizeSection(section));
+    basket.sections = patch.sections.map((section) =>
+      normalizeSection(section),
+    );
   }
 
   basket.updatedAt = nowIso();
@@ -485,21 +500,34 @@ export function clearOrders(basketId?: string) {
 
 function mapSectionSelections(
   basket: WeeklyBasket,
-  payload: CreateOrderInput
+  payload: CreateOrderInput,
 ): OrderSectionSelection[] | ReturnType<typeof serializeError> {
-  const sectionById = new Map(basket.sections.map((section) => [section.id, section]));
+  const sectionById = new Map(
+    basket.sections.map((section) => [section.id, section]),
+  );
   const quantityBySectionId = new Map<string, number>();
 
   for (const selection of payload.sectionSelections) {
     if (!sectionById.has(selection.sectionId)) {
-      return serializeError("Order contains an unknown section.", "invalid_section", 422);
+      return serializeError(
+        "Order contains an unknown section.",
+        "invalid_section",
+        422,
+      );
     }
 
     if (quantityBySectionId.has(selection.sectionId)) {
-      return serializeError("Order contains duplicate section selections.", "invalid_section", 422);
+      return serializeError(
+        "Order contains duplicate section selections.",
+        "invalid_section",
+        422,
+      );
     }
 
-    quantityBySectionId.set(selection.sectionId, Math.max(0, Math.floor(selection.quantity)));
+    quantityBySectionId.set(
+      selection.sectionId,
+      Math.max(0, Math.floor(selection.quantity)),
+    );
   }
 
   const normalized: OrderSectionSelection[] = [];
@@ -511,7 +539,7 @@ function mapSectionSelections(
       return serializeError(
         `Section ${section.name} must be between ${section.minQuantity} and ${section.maxQuantity}.`,
         "section_quantity_out_of_bounds",
-        422
+        422,
       );
     }
 
@@ -534,7 +562,11 @@ export function createOrder(payload: CreateOrderInput) {
   }
 
   if (!basket.isOpen) {
-    return serializeError("Basket is not open for ordering.", "basket_not_open", 409);
+    return serializeError(
+      "Basket is not open for ordering.",
+      "basket_not_open",
+      409,
+    );
   }
 
   const sectionSelections = mapSectionSelections(basket, payload);
@@ -543,7 +575,10 @@ export function createOrder(payload: CreateOrderInput) {
   }
 
   const total = roundMoney(
-    sectionSelections.reduce((acc, selection) => acc + selection.quantity * selection.unitPrice, 0)
+    sectionSelections.reduce(
+      (acc, selection) => acc + selection.quantity * selection.unitPrice,
+      0,
+    ),
   );
 
   const order: Order = {
@@ -606,7 +641,11 @@ export function createRandomOrders(basketId: string, count: number) {
   }
 
   if (!basket.isOpen) {
-    return serializeError("Basket is not open for ordering.", "basket_not_open", 409);
+    return serializeError(
+      "Basket is not open for ordering.",
+      "basket_not_open",
+      409,
+    );
   }
 
   const safeCount = Math.max(1, Math.min(500, Math.floor(count)));
@@ -644,17 +683,23 @@ export function getBasketSummary(basketId: string): BasketSummary | null {
   const totalOrders = orders.length;
   const totalBaskets = orders.reduce(
     (acc, order) =>
-      acc + order.sectionSelections.reduce((sectionAcc, selection) => sectionAcc + selection.quantity, 0),
-    0
+      acc +
+      order.sectionSelections.reduce(
+        (sectionAcc, selection) => sectionAcc + selection.quantity,
+        0,
+      ),
+    0,
   );
-  const totalBudget = roundMoney(orders.reduce((acc, order) => acc + order.total, 0));
+  const totalBudget = roundMoney(
+    orders.reduce((acc, order) => acc + order.total, 0),
+  );
 
   const sectionDemandById = new Map<string, number>();
   for (const order of orders) {
     for (const selection of order.sectionSelections) {
       sectionDemandById.set(
         selection.sectionId,
-        (sectionDemandById.get(selection.sectionId) ?? 0) + selection.quantity
+        (sectionDemandById.get(selection.sectionId) ?? 0) + selection.quantity,
       );
     }
   }
@@ -666,7 +711,8 @@ export function getBasketSummary(basketId: string): BasketSummary | null {
       const packsToBuy = Math.max(0, Math.floor(product.casesToBuy));
       const spent = roundMoney(packsToBuy * product.packPrice);
       const totalUnits = packsToBuy * product.unitsPerPack;
-      const unitsPerBasket = sectionDemand > 0 ? Math.floor(totalUnits / sectionDemand) : 0;
+      const unitsPerBasket =
+        sectionDemand > 0 ? Math.floor(totalUnits / sectionDemand) : 0;
       const allocatedBudget = spent;
 
       return {
@@ -686,7 +732,9 @@ export function getBasketSummary(basketId: string): BasketSummary | null {
     });
   });
 
-  const totalSpent = roundMoney(byProduct.reduce((acc, row) => acc + row.spent, 0));
+  const totalSpent = roundMoney(
+    byProduct.reduce((acc, row) => acc + row.spent, 0),
+  );
 
   return {
     basketId,
